@@ -61,6 +61,6 @@ class Token():
         self.literal = literal
         self.line = line
     def __repr__(self) -> str:
-        return self.type + " " + self.lexeme + " " + self.literal
+        return str(self.type) + " " + self.lexeme + " " + str(self.literal)
 
    
