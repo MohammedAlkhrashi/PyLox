@@ -1,0 +1,11 @@
+int x = 5; // this is a comment
+
+if (condition) {
+  print "yes";
+} else {
+  print "no";
+}
+
+
+
+

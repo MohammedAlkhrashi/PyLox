@@ -56,7 +56,6 @@ class Scanner:
     def add_token(self, token_type: TokenType, literal=None):
         text = self.source[self.start : self.current]
         self.tokens.append(Token(token_type, text, literal, self.line))
-        self.start = self.current
 
     def match(self, expected: str):
         if self.end():
@@ -82,7 +81,6 @@ class Scanner:
 
     def string(self):
         while self.peek() != '"' and not self.end():
-            print("inf prediction")
             if self.peek() == "\n":
                 self.line += 1
             self.advance()
@@ -116,67 +114,69 @@ class Scanner:
         type_: TokenType = Scanner.keywords.get(text, TokenType.IDENTIFIER)
         return self.add_token(type_)
 
+    def scan_token(self):
+        c: str = self.advance()
+        match c:
+            case "(":
+                self.add_token(TokenType.LEFT_PAREN)
+            case ")":
+                self.add_token(TokenType.RIGHT_PAREN)
+            case "{":
+                self.add_token(TokenType.LEFT_BRACE)
+            case "}":
+                self.add_token(TokenType.RIGHT_BRACE)
+            case ",":
+                self.add_token(TokenType.COMMA)
+            case ".":
+                self.add_token(TokenType.DOT)
+            case "-":
+                self.add_token(TokenType.MINUS)
+            case "+":
+                self.add_token(TokenType.PLUS)
+            case ";":
+                self.add_token(TokenType.SEMICOLON)
+            case "*":
+                self.add_token(TokenType.STAR)
+            case "!":
+                self.add_token(
+                    TokenType.BANG_EQUAL if self.match("=") else TokenType.BANG
+                )
+            case "=":
+                self.add_token(
+                    TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL
+                )
+            case "<":
+                self.add_token(
+                    TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS
+                )
+            case ">":
+                self.add_token(
+                    TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER
+                )
+            case " " | "\t" | "\r":
+                pass
+            case "\n":
+                self.line += 1
+            case "/":
+                if self.match("/"):
+                    while not self.end() and self.peek() != "\n":
+                        self.advance()
+                else:
+                    self.add_token(TokenType.SLASH)
+            case '"':
+                self.string()
+            case _ as c if is_digit(c):
+                self.number()
+            case _ as c if is_alpha(c):
+                self.identifier()
+
+            case _:
+                self.lox.error(self.line, "Unexpected character.")
+
     def scan_tokens(self) -> List[Token]:
         while not self.end():
-            c: str = self.advance()
-            match c:
-                case "(":
-                    self.add_token(TokenType.LEFT_PAREN)
-                case ")":
-                    self.add_token(TokenType.RIGHT_PAREN)
-                case "{":
-                    self.add_token(TokenType.LEFT_BRACE)
-                case "}":
-                    self.add_token(TokenType.RIGHT_BRACE)
-                case ",":
-                    self.add_token(TokenType.COMMA)
-                case ".":
-                    self.add_token(TokenType.DOT)
-                case "-":
-                    self.add_token(TokenType.MINUS)
-                case "+":
-                    self.add_token(TokenType.PLUS)
-                case ";":
-                    self.add_token(TokenType.SEMICOLON)
-                case "*":
-                    self.add_token(TokenType.STAR)
-                case "!":
-                    self.add_token(
-                        TokenType.BANG_EQUAL if self.match("=") else TokenType.BANG
-                    )
-                case "=":
-                    self.add_token(
-                        TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL
-                    )
-                case "<":
-                    self.add_token(
-                        TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS
-                    )
-                case ">":
-                    self.add_token(
-                        TokenType.GREATER_EQUAL
-                        if self.match("=")
-                        else TokenType.GREATER
-                    )
-                case " " | "\t" | "\r":
-                    pass
-                case "\n":
-                    self.line += 1
-                case "/":
-                    if self.match("/"):
-                        while not self.end() and self.peek != "\n":
-                            self.advance()
-                    else:
-                        self.add_token(TokenType.SLASH)
-                    continue
-                case '"':
-                    self.string()
-                case _ as c if is_digit(c):
-                    self.number()
-                case _ as c if is_alpha(c):
-                    self.identifier()
+            self.start = self.current
+            self.scan_token()
 
-                case _:
-                    self.lox.error(self.line, "Unexpected character.")
-                    continue
+        self.tokens.append(Token(TokenType.EOF, "", None, self.line))
         return self.tokens

@@ -42,9 +42,8 @@ class Lox:
     def run(source: str):
         scanner = Scanner(source, Lox)
         tokens: List[Token] = scanner.scan_tokens()
-        print(tokens)
-        # for token in tokens:
-        #     print(token)
+        for token in tokens:
+            print(token)
 
     @staticmethod
     def error(line_num: int, messaage: str):
