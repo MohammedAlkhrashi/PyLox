@@ -1,4 +1,4 @@
-int x = 5; // this is a comment
+var x = 5; // this is a comment
 
 if (condition) {
   print "yes";
