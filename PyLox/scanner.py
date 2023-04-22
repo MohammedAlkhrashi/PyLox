@@ -161,6 +161,15 @@ class Scanner:
                 if self.match("/"):
                     while not self.end() and self.peek() != "\n":
                         self.advance()
+                elif self.match("*"):
+                    while not self.end() and not (self.peek() == "*" and self.peekNext() == "/"):
+                        self.advance()
+                        
+                    if self.end():
+                        self.lox.error(self.line, "Unterminated multiline comment.")
+                    else:
+                        self.advance()
+                        self.advance()
                 else:
                     self.add_token(TokenType.SLASH)
             case '"':
@@ -169,7 +178,6 @@ class Scanner:
                 self.number()
             case _ as c if is_alpha(c):
                 self.identifier()
-
             case _:
                 self.lox.error(self.line, "Unexpected character.")
 

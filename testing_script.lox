@@ -1,11 +1,15 @@
-var x = 5; // this is a comment
+  var x = 5; // this is a comment
 
-if (condition) {
-  print "yes";
-} else {
-  print "no";
-}
-
-
+  if (condition) {
+    print "yes";
+  } else {
+    print "no";
+  }
 
 
+  a = b /* this is 
+  a 
+  multi
+  line
+  comment
+  !*/
