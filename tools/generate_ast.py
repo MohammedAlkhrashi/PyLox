@@ -26,11 +26,20 @@ def define_ast(write_path, base_name, types: List[str]):
         file.write("from abc import ABC\n")
         file.write("from PyLox.tokens import Token\n")
         file.write("\n")
-        
         file.write(f"class {base_name}(ABC):"
                    "\n\t...\n")
+        file.write("\n")
 
-                   
+        file.write(f"class Visitor(ABC):\n")
+        for type in types:
+            type_name, fields_str = type.split(":")
+            type_name = type_name.strip()
+            file.write(f"\tdef visit_{type_name.lower()}(expr):"
+                       "\n\t\t...\n")
+            file.write("\n")
+            
+
+
         for type in types:
             type_name, fields_str = type.split(":")
             type_name = type_name.strip()
@@ -49,6 +58,10 @@ def define_ast(write_path, base_name, types: List[str]):
                 _, name = field.lstrip().split(" ")
                 file.write(f"\t\tself.{name}  = {name}\n")
 
+            file.write("\n")
+            file.write(f"\tdef accept(self,visitor: Visitor):"
+                       f"\n\t\treturn visitor.visit_{type_name.lower()}()")
+            file.write("\n")
 
 
     
